@@ -131,13 +131,10 @@ const NSUInteger kTopTipDelay = 250;
 
 - (IBAction)optimize:(id)sender
 {
-    NSString *path = self.openDocument.presentedRealm.realm.path;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        RLMRealm *realm = [RLMRealm realmWithPath:path readOnly:NO dynamic:YES schema:nil error:nil];
-        [realm beginWriteTransaction];
-        [realm optimize];
-        [realm commitWriteTransaction];
-    });
+    RLMRealm *realm = self.openDocument.presentedRealm.realm;
+    [realm beginWriteTransaction];
+    [realm optimize];
+    [realm commitWriteTransaction];
 }
 
 #pragma mark - Private methods
