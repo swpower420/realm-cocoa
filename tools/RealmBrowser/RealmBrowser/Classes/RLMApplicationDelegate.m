@@ -133,7 +133,7 @@ const NSUInteger kTopTipDelay = 250;
 {
     NSString *path = self.openDocument.presentedRealm.realm.path;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        RLMRealm *realm = [RLMRealm realmWithPath:path readOnly:YES dynamic:YES schema:nil error:nil];
+        RLMRealm *realm = [RLMRealm realmWithPath:path readOnly:NO dynamic:YES schema:nil error:nil];
         [realm beginWriteTransaction];
         [realm optimize];
         [realm commitWriteTransaction];
