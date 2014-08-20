@@ -18,6 +18,7 @@
 
 #import "RLMRealm_Private.hpp"
 #import "RLMSchema_Private.h"
+#import "RLMObjectSchema_Private.hpp"
 #import "RLMObject_Private.h"
 #import "RLMArray_Private.hpp"
 #import "RLMMigration_Private.h"
@@ -569,6 +570,14 @@ static NSArray *s_objectDescriptors = nil;
     // clear cache for future callers
     clearRealmCache();
     return nil;
+}
+
+- (void)optimize
+{
+    for (RLMObjectSchema *objectSchema in self.schema.objectSchema) {
+        tightdb::Table &table = *objectSchema->_table;
+        table.optimize();
+    }
 }
 
 @end

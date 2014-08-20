@@ -21,11 +21,24 @@
 #import <Realm/Realm.h>
 
 #import "TestClasses.h"
+#import "RLMDocument.h"
+
+@interface RLMRealm (Optimize)
+
+- (void)optimize;
+
+@end
 
 NSString *const kRealmFileExension = @"realm";
 
 const NSUInteger kTestDatabaseSizeMultiplicatorFactor = 1;
 const NSUInteger kTopTipDelay = 250;
+
+@interface RLMApplicationDelegate ()
+
+@property (nonatomic, weak) RLMDocument *openDocument;
+
+@end
 
 @implementation RLMApplicationDelegate
 
@@ -35,7 +48,7 @@ const NSUInteger kTopTipDelay = 250;
                                               forKey:@"NSInitialToolTipDelay"];
     
     NSInteger openFileIndex = [self.fileMenu indexOfItem:self.openMenuItem];
-    [self.fileMenu performActionForItemAtIndex:openFileIndex];    
+    [self.fileMenu performActionForItemAtIndex:openFileIndex];
 }
 
 - (BOOL)application:(NSApplication *)application openFile:(NSString *)filename
@@ -47,6 +60,7 @@ const NSUInteger kTopTipDelay = 250;
                                               display:YES
                                     completionHandler:^(NSDocument *document, BOOL documentWasAlreadyOpen, NSError *error){
                                         NSLog(@"Error %@", error);
+                                        self.openDocument = (RLMDocument *)document;
                                     }];
     
     return YES;
@@ -113,6 +127,17 @@ const NSUInteger kTopTipDelay = 250;
             }
         }
     }];
+}
+
+- (IBAction)optimize:(id)sender
+{
+    NSString *path = self.openDocument.presentedRealm.realm.path;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        RLMRealm *realm = [RLMRealm realmWithPath:path readOnly:YES dynamic:YES schema:nil error:nil];
+        [realm beginWriteTransaction];
+        [realm optimize];
+        [realm commitWriteTransaction];
+    });
 }
 
 #pragma mark - Private methods
