@@ -514,36 +514,37 @@ static Class RLMCreateAccessorClass(Class objectClass,
     }
     
     // create and register proxy class which derives from object class
-    NSString *objectClassName = [objectClass className];
-    NSString *accessorClassName = [accessorClassPrefix stringByAppendingString:objectClassName];
+    NSString *accessorClassName = [accessorClassPrefix stringByAppendingString:[objectClass className]];
     Class accClass = objc_getClass(accessorClassName.UTF8String);
-    if (!accClass) {
-        accClass = objc_allocateClassPair(objectClass, accessorClassName.UTF8String, 0);
-        objc_registerClassPair(accClass);
+    if (accClass) {
+        return accClass;
     }
+    accClass = objc_allocateClassPair(objectClass, accessorClassName.UTF8String, 0);
     
     // override getters/setters for each propery
     for (unsigned int propNum = 0; propNum < schema.properties.count; propNum++) {
         RLMProperty *prop = schema.properties[propNum];
         char accessorCode = accessorCodeForType(prop.objcType, prop.type);
         if (getterGetter) {
-            SEL getterSel = NSSelectorFromString(prop.getterName);
             IMP getterImp = getterGetter(prop, accessorCode, prop.objectClassName);
             if (getterImp) {
-                class_replaceMethod(accClass, getterSel, getterImp, getterTypeStringForObjcCode(prop.objcType));
+                SEL getterSel = NSSelectorFromString(prop.getterName);
+                class_addMethod(accClass, getterSel, getterImp, getterTypeStringForObjcCode(prop.objcType));
             }
         }
         if (setterGetter) {
-            SEL setterSel = NSSelectorFromString(prop.setterName);
             IMP setterImp = setterGetter(prop, accessorCode);
             if (setterImp) {
-                class_replaceMethod(accClass, setterSel, setterImp, setterTypeStringForObjcCode(prop.objcType));
+                SEL setterSel = NSSelectorFromString(prop.setterName);
+                class_addMethod(accClass, setterSel, setterImp, setterTypeStringForObjcCode(prop.objcType));
             }
         }
     }
     
     // implement className for accessor to return base className
     RLMReplaceClassNameMethod(accClass, schema.className);
+
+    objc_registerClassPair(accClass);
 
     return accClass;
 }

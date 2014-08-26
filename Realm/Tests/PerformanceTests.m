@@ -162,4 +162,15 @@
     }];
 }
 
+- (void)testRealmCreation {
+    // Get any one-time init out of the way
+    @autoreleasepool { [self realmWithTestPath]; }
+
+    [self measureBlock:^{
+        for (int i = 0; i < 100; ++i) {
+            @autoreleasepool { [self realmWithTestPath]; }
+        }
+    }];
+}
+
 @end
