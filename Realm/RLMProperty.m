@@ -65,11 +65,13 @@
     }
     if (!_setterName) {
         // Objective-C setters only capitalize the first letter of the property name if it falls between 'a' and 'z'
-        int asciiCode = [_name characterAtIndex:0];
-        BOOL shouldUppercase = asciiCode >= 'a' && asciiCode <= 'z';
-        NSString *firstChar = [_name substringToIndex:1];
-        firstChar = shouldUppercase ? firstChar.uppercaseString : firstChar;
-        _setterName = [NSString stringWithFormat:@"set%@%@:", firstChar, [_name substringFromIndex:1]];
+        unichar asciiCode = [_name characterAtIndex:0];
+        if (asciiCode >= 'a' && asciiCode <= 'z') {
+            _setterName = [NSString stringWithFormat:@"set%c%@:", toupper(asciiCode), [_name substringFromIndex:1]];
+        }
+        else {
+            _setterName = [@"set" stringByAppendingString:_name];
+        }
     }
 }
 
