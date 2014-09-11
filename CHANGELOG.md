@@ -28,6 +28,7 @@
   checker code is not compiled into device builds). This can be disabled by
   setting the REALM_DISABLE_UPDATE_CHECKER environment variable to any value.
 * Add support for Int16 and Int64 properties in Swift classes.
+* Implement `objectsWhere:` and `objectsWithPredicate:` for array properties.
 
 ### Bugfixes
 

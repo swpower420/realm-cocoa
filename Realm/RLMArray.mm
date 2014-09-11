@@ -162,14 +162,6 @@ static void RLMValidateMatchingObjectType(RLMArray *array, RLMObject *object) {
     }
 }
 
-
-
-//
-// Methods unsupported on standalone RLMArray instances
-//
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 - (RLMArray *)objectsWhere:(NSString *)predicateFormat, ...
 {
     va_list args;
@@ -179,10 +171,15 @@ static void RLMValidateMatchingObjectType(RLMArray *array, RLMObject *object) {
 
 - (RLMArray *)objectsWhere:(NSString *)predicateFormat args:(va_list)args
 {
-    @throw [NSException exceptionWithName:@"RLMException"
-                                   reason:@"This method can only be called in RLMArray instances retrieved from an RLMRealm" userInfo:nil];
+    return [self objectsWithPredicate:[NSPredicate predicateWithFormat:predicateFormat arguments:args]];
 }
 
+//
+// Methods unsupported on standalone RLMArray instances
+//
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 - (RLMArray *)objectsWithPredicate:(NSPredicate *)predicate
 {
     @throw [NSException exceptionWithName:@"RLMException"

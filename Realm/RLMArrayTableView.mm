@@ -192,19 +192,6 @@ static inline void RLMArrayTableViewValidateInWriteTransaction(RLMArrayTableView
 
 #pragma GCC diagnostic pop
 
-- (RLMArray *)objectsWhere:(NSString *)predicateFormat, ...
-{
-    // validate predicate
-    va_list args;
-    RLM_VARARG(predicateFormat, args);
-    return [self objectsWhere:predicateFormat args:args];
-}
-
-- (RLMArray *)objectsWhere:(NSString *)predicateFormat args:(va_list)args
-{
-    return [self objectsWithPredicate:[NSPredicate predicateWithFormat:predicateFormat arguments:args]];
-}
-
 - (RLMArray *)objectsWithPredicate:(NSPredicate *)predicate
 {
     RLMArrayTableViewValidate(self);

@@ -26,6 +26,7 @@
 #import "RLMSchema.h"
 
 #import <objc/runtime.h>
+#import <tightdb/query_engine.hpp>
 
 //
 // RLMArray implementation
@@ -225,6 +226,33 @@ static inline void RLMValidateObjectClass(RLMObject *obj, NSString *expected) {
 
     // delete all target rows from the realm
     self->_backingLinkView->remove_all_target_rows();
+}
+
+namespace {
+// Queries don't retain the passed LinkView, so things explode if the LinkView
+// gets dealloced before the query (i.e. if someone returns the result of
+// querying an array property on a local object). Work around this by storing a
+// LinkViewRef in a dummy query expression node that gets kept around by the
+// query.
+class LinkViewHolder : public tightdb::Expression {
+    tightdb::LinkViewRef linkView;
+
+public:
+    LinkViewHolder(LinkViewRef linkView) : linkView(linkView) { }
+
+    size_t find_first(size_t start, size_t) const override { return start; }
+    void set_table() override { }
+    const tightdb::Table *get_table() override { return nullptr; }
+};
+} // namespace {
+
+- (RLMArray *)objectsWithPredicate:(NSPredicate *)predicate {
+    RLMLinkViewArrayValidateAttached(self);
+
+    tightdb::Query query = _backingLinkView->get_target_table().where(_backingLinkView.get());
+    query.expression(new LinkViewHolder(_backingLinkView)); // query.expression takes ownership of new object
+    RLMUpdateQueryWithPredicate(&query, predicate, _realm.schema, _realm.schema[self.objectClassName]);
+    return [RLMArrayTableView arrayWithObjectClassName:self.objectClassName query:query realm:_realm];
 }
 
 @end
