@@ -26,20 +26,19 @@ public extension ArrayProperty {
         self.init(objectClassName: RLMSwiftSupport.demangleClassName(NSStringFromClass(T)))
     }
 
-    // Convert ArrayProperty to generic RealmArray version
-    public func realmArray<T: Object>(_: T.Type) -> RealmArray<T> {
+    // Convert ArrayProperty to generic List version
+    public func list<T: Object>(_: T.Type) -> List<T> {
         assert(RLMSwiftSupport.demangleClassName(NSStringFromClass(T)) == objectClassName,
-            "Must pass same RealmObject type to realmArray as was used to create the ArrayProperty")
-        return RealmArray<T>(rlmArray: self)
+            "Must pass same Object type to list() as was used to create the ArrayProperty")
+        return List<T>(rlmArray: self)
     }
 }
 
-public class RealmArray<T: Object>: SequenceType, Printable {
+public class List<T: Object>: SequenceType, Printable {
     // MARK: Properties
 
     var rlmArray: RLMArray
     public var count: UInt { return rlmArray.count }
-    public var readOnly: Bool { return rlmArray.readOnly }
     public var realm: Realm { return Realm(rlmRealm: rlmArray.realm) }
     public var description: String { return rlmArray.description }
 
@@ -60,11 +59,11 @@ public class RealmArray<T: Object>: SequenceType, Printable {
         return rlmArray.indexOfObject(object)
     }
 
-    public func indexWhere(predicate: NSPredicate) -> UInt? {
+    public func indexOf(predicate: NSPredicate) -> UInt? {
         return rlmArray.indexOfObjectWithPredicate(predicate)
     }
 
-    public func indexWhere(predicateFormat: String, _ args: CVarArgType...) -> UInt {
+    public func indexOf(predicateFormat: String, _ args: CVarArgType...) -> UInt? {
         return rlmArray.indexOfObjectWhere(predicateFormat, args: getVaList(args))
     }
 
@@ -89,42 +88,36 @@ public class RealmArray<T: Object>: SequenceType, Printable {
 
     // MARK: Subarray Retrieval
 
-    public func objectsWhere(predicateFormat: String, _ args: CVarArgType...) -> RealmArray<T> {
-        return RealmArray<T>(rlmArray: rlmArray.objectsWhere(predicateFormat, args: getVaList(args)))
+    public func filter(predicateFormat: String, _ args: CVarArgType...) -> List<T> {
+        return List<T>(rlmArray: rlmArray.objectsWhere(predicateFormat, args: getVaList(args)))
     }
 
-    public func objectsWhere(predicate: NSPredicate) -> RealmArray<T> {
-        return RealmArray<T>(rlmArray: rlmArray.objectsWithPredicate(predicate))
+    public func filter(predicate: NSPredicate) -> List<T> {
+        return List<T>(rlmArray: rlmArray.objectsWithPredicate(predicate))
     }
 
     // MARK: Sorting
 
-    public func arraySortedByProperty(property: String, ascending: Bool) -> RealmArray<T> {
-        return RealmArray<T>(rlmArray: rlmArray.arraySortedByProperty(property, ascending: ascending))
+    public func sorted(property: String, ascending: Bool) -> List<T> {
+        return List<T>(rlmArray: rlmArray.arraySortedByProperty(property, ascending: ascending))
     }
 
     // MARK: Aggregate Operations
 
-    public func minOfProperty<U: Sortable>(property: String) -> U {
+    public func min<U: Sortable>(property: String) -> U {
         return rlmArray.minOfProperty(property) as U
     }
 
-    public func maxOfProperty<U: Sortable>(property: String) -> U {
+    public func max<U: Sortable>(property: String) -> U {
         return rlmArray.maxOfProperty(property) as U
     }
 
-    public func sumOfProperty(property: String) -> Double {
+    public func sum(property: String) -> Double {
         return rlmArray.sumOfProperty(property) as Double
     }
 
-    public func averageOfProperty(property: String) -> Double {
+    public func average(property: String) -> Double {
         return rlmArray.averageOfProperty(property) as Double
-    }
-
-    // MARK: JSON
-
-    public func JSONString() -> String {
-        return rlmArray.JSONString()
     }
 
     // MARK: Sequence Support

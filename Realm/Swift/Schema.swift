@@ -30,11 +30,7 @@ public class Schema {
 
     // MARK: ObjectSchema Retrieval
 
-    public func schemaForClassName(className: String) -> ObjectSchema {
-        return ObjectSchema(rlmObjectSchema: rlmSchema.schemaForClassName(className))
-    }
-
     public subscript(className: String) -> ObjectSchema {
-        return schemaForClassName(className)
+        return ObjectSchema(rlmObjectSchema: rlmSchema.schemaForClassName(className))
     }
 }

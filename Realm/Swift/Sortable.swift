@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 // Sortable Realm types
-// Useful for RealmArray.minForProperty()/maxForProperty()
+// Useful for List.minForProperty()/maxForProperty()
 public protocol Sortable {}
 extension NSDate: Sortable {}
 extension Int16: Sortable {}
