@@ -100,7 +100,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         NSFileManager.defaultManager().copyItemAtPath(v0Path, toPath: defaultPath, error: nil)
 
         // migrate default realm at v0 data model to the current version
-        migrateDefaultRealm(migrationBlock)
+        migrateRealm(path: defaultRealmPath(), migrationBlock)
 
         // print out all migrated objects in the default realm
         println("Migrated objects in the default Realm: \(objects(Person))")
@@ -119,8 +119,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         NSFileManager.defaultManager().copyItemAtPath(v2Path, toPath: realmv2Path, error: nil)
 
         // migrate realms at custom paths
-        migrateRealm(realmv1Path, migrationBlock)
-        migrateRealm(realmv2Path, migrationBlock)
+        migrateRealm(path: realmv1Path, migrationBlock)
+        migrateRealm(path: realmv2Path, migrationBlock)
 
         // print out all migrated objects in the migrated realms
         println("Migrated objects in the Realm migrated from v1: \(Realm(path: realmv1Path).objects(Person))")

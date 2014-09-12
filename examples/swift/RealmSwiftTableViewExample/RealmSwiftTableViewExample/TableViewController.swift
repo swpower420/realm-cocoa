@@ -36,7 +36,7 @@ class Cell: UITableViewCell {
 
 class TableViewController: UITableViewController {
 
-    var array = RealmArray<DemoObject>()
+    var array = List<DemoObject>()
     var notificationToken: NotificationToken?
 
     override func viewDidLoad() {
@@ -80,7 +80,7 @@ class TableViewController: UITableViewController {
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
             let realm = defaultRealm()
-            realm.transaction() {
+            realm.write {
                 realm.delete(self.array[UInt(indexPath.row)]!)
             }
         }
@@ -89,7 +89,7 @@ class TableViewController: UITableViewController {
     // Actions
 
     func reloadData() {
-        array = objects(DemoObject).arraySortedByProperty("date", ascending: true)
+        array = objects(DemoObject).sorted("date", ascending: true)
         tableView.reloadData()
     }
 
@@ -98,7 +98,7 @@ class TableViewController: UITableViewController {
         // Import many items in a background thread
         dispatch_async(queue) {
             // Get new realm and table since we are in a new thread
-            defaultRealm().transaction() {
+            defaultRealm().write {
                 for index in 0..<5 {
                     // Add object via Dictionary. Order is ignored.
                     DemoObject.createInDefaultRealmWithObject(["title": TableViewController.randomString(), "date": TableViewController.randomDate()])
@@ -108,7 +108,7 @@ class TableViewController: UITableViewController {
     }
 
     func add() {
-        defaultRealm().transaction() {
+        defaultRealm().write {
             println("Adding object")
             // Add object via Array. Order must match mode property order.
             DemoObject.createInDefaultRealmWithObject([TableViewController.randomString(), TableViewController.randomDate()])
